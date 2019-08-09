@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) throws UserAlreadyExists {
         if (userAlreadyExists(user)) {
-            throw new UserAlreadyExists();
+            throw new UserAlreadyExists(user);
         }
 
         userRepository.save(user);
@@ -65,12 +66,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Tweet> getTweetsForUser(User user) throws UserDoesNotExist {
-        if (!userAlreadyExists(user)) {
+    public List<Tweet> getTweetsForUser(Long id) throws UserDoesNotExist {
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
             throw new UserDoesNotExist();
         }
 
-        return userRepository.findById(user.getId()).get().getTweets();
+        return user.get().getTweets();
     }
 
     @Override
@@ -85,14 +87,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Tweet> getTweetsOnAParticularDate(User user, Date date) throws UserDoesNotExist {
-        if (!userAlreadyExists(user)) {
+    public List<Tweet> getTweetsOnAParticularDate(Long id, Date date) throws UserDoesNotExist {
+        Optional<User> user = userRepository.findById(id);
+
+        if (!user.isPresent()) {
             throw new UserDoesNotExist();
         }
 
         List<Tweet> tweetsOnDate;
 
-        tweetsOnDate = userRepository.findById(user.getId()).get().getTweets().stream()
+        tweetsOnDate = user.get().getTweets().stream()
                 .filter(tweet -> tweet.isOn(date))
                 .collect(Collectors.toList());
 

@@ -9,17 +9,17 @@ import java.util.Date;
 import java.util.List;
 
 public interface UserService {
-    List<User> getAllUsersThatHaveTweetedLastMonth();
-
     void save(User user) throws UserAlreadyExists;
 
     void updatePassword(User user) throws UserDoesNotExist;
 
     void delete(User user) throws UserDoesNotExist;
 
-    List<Tweet> getTweetsForUser(User user) throws UserDoesNotExist;
-
     void deleteTweets(User user) throws UserDoesNotExist;
 
-    List<Tweet> getTweetsOnAParticularDate(User user, Date date) throws UserDoesNotExist;
+    List<User> getAllUsersThatHaveTweetedLastMonth();
+
+    List<Tweet> getTweetsForUser(Long userId) throws UserDoesNotExist;
+
+    List<Tweet> getTweetsOnAParticularDate(Long id, Date date) throws UserDoesNotExist;
 }
