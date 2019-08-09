@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,29 +43,25 @@ public class UserController {
     }
 
     @GetMapping("/{id}/tweets")
-    public List<Tweet> getTweetsForUser(@PathVariable Long id) {
-        List<Tweet> tweets = new ArrayList<>();
-
+    public ResponseEntity<List<Tweet>> getTweetsForUser(@PathVariable Long id) {
         try {
-            tweets = userService.getTweetsForUser(id);
+            List<Tweet> tweets = userService.getTweetsForUser(id);
+            return new ResponseEntity<>(tweets, HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
-            userDoesNotExist.printStackTrace();
+            System.out.println(userDoesNotExist.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        return tweets;
     }
 
     @GetMapping("/{id}/tweets")
-    public List<Tweet> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "dd.MM.yyyy") Date date) {
-        List<Tweet> tweets = new ArrayList<>();
-
+    public ResponseEntity<List<Tweet>> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "dd.MM.yyyy") Date date) {
         try {
-            tweets = userService.getTweetsOnAParticularDate(id, date);
+            List<Tweet> tweets = userService.getTweetsOnAParticularDate(id, date);
+            return new ResponseEntity<>(tweets, HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
             System.out.println(userDoesNotExist.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        return tweets;
     }
 
     @PutMapping
