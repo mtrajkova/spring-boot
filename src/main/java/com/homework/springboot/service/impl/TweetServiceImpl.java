@@ -18,7 +18,11 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public Tweet getById(Long id) {
+    public Tweet getById(Long id) throws TweetDoesNotExist {
+        if (!tweetRepository.findById(id).isPresent()) {
+            throw new TweetDoesNotExist();
+        }
+
         return tweetRepository.findById(id).get();
     }
 
