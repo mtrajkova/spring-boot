@@ -4,6 +4,7 @@ import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +20,17 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final TweetRepository tweetRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, TweetRepository tweetRepository) {
         this.userRepository = userRepository;
+        this.tweetRepository = tweetRepository;
     }
 
     @Override
     public List<User> getAllUsersThatHaveTweetedLastMonth() {
-        List<User> usersThatTweetedLastMonth = new ArrayList<>();
+        List<User> usersThatTweetedLastMonth;
 
         usersThatTweetedLastMonth = userRepository.findAll().stream()
                 .filter(user -> user.getLastMonthsTweets().size() > 0)
@@ -37,12 +40,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(User user) throws UserAlreadyExists {
+    public User save(User user) throws UserAlreadyExists {
         if (userAlreadyExists(user)) {
             throw new UserAlreadyExists(user);
         }
 
         userRepository.save(user);
+        return user;
     }
 
     @Override
@@ -94,16 +98,10 @@ public class UserServiceImpl implements UserService {
             throw new UserDoesNotExist();
         }
 
-        List<Tweet> tweetsOnDate;
-
-        tweetsOnDate = user.get().getTweets().stream()
-                .filter(tweet -> tweet.isOn(date))
-                .collect(Collectors.toList());
-
-        return tweetsOnDate;
+        return tweetRepository.findByCreationDate(date);
     }
 
     private boolean userAlreadyExists(User user) {
-        return userRepository.findById(user.getId()).isPresent();
+        return userRepository.findByUsername(user.getUsername()).isPresent() || userRepository.findByEmail(user.getEmail()).isPresent();
     }
 }

@@ -43,6 +43,9 @@ public class TweetServiceImpl implements TweetService {
     }
 
     private boolean tweetAlreadyExists(Tweet tweet) {
+        if (tweet.getId() == null)
+            return false;
+
         return tweetRepository.findById(tweet.getId()).isPresent();
     }
 }

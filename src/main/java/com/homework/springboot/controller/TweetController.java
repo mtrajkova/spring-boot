@@ -25,7 +25,7 @@ public class TweetController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Tweet> getTweetById(@PathVariable Long id) {
         try {
             return new ResponseEntity<>(tweetService.getById(id), HttpStatus.OK);

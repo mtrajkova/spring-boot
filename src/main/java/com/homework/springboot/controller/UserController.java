@@ -37,12 +37,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/tweeted-last-month")
+    @GetMapping(value = "/tweeted-last-month")
     public List<User> getAllUsersThatHaveTweetedLastMonth() {
         return userService.getAllUsersThatHaveTweetedLastMonth();
     }
 
-    @GetMapping("/{id}/tweets")
+    @GetMapping(value = "/{id}/tweets")
     public ResponseEntity<List<Tweet>> getTweetsForUser(@PathVariable Long id) {
         try {
             List<Tweet> tweets = userService.getTweetsForUser(id);
@@ -53,7 +53,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}/tweets")
+    @GetMapping(value = "/{id}/tweetsOnDate")
     public ResponseEntity<List<Tweet>> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "dd.MM.yyyy") Date date) {
         try {
             List<Tweet> tweets = userService.getTweetsOnAParticularDate(id, date);
@@ -86,7 +86,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/tweets")
     public ResponseEntity deleteTweetsForUser(@RequestBody User user) {
         try {
             userService.deleteTweets(user);

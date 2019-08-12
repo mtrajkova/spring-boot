@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface UserService {
-    void save(User user) throws UserAlreadyExists;
+    User save(User user) throws UserAlreadyExists;
 
     void updatePassword(User user) throws UserDoesNotExist;
 

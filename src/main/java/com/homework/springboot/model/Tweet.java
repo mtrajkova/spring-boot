@@ -26,7 +26,7 @@ public class Tweet {
     private Date creationDate;
     @ManyToOne
     @NotNull
-    private Long userId;
+    private User userId;
 
     public boolean isLastMonth() {
         Date now = new Date();
@@ -36,7 +36,4 @@ public class Tweet {
         return localDateNow.minusMonths(1).getMonth().equals(localDateCreation.getMonth());
     }
 
-    public boolean isOn(Date date) {
-        return this.creationDate.equals(date);
-    }
 }
