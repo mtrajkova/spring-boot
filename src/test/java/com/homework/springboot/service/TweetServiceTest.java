@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @SpringBootTest
-public class TweetServiceTestDEV {
+public class TweetServiceTest {
 
     @Mock
     private TweetService tweetService;
@@ -46,7 +46,7 @@ public class TweetServiceTestDEV {
 //        assertEquals(tweetToBeSaved.getId(), foundTweet.getId());
 //        assertEquals(tweetToBeSaved.getContent(), foundTweet.getContent());
 //        assertEquals(tweetToBeSaved.getCreationDate(), foundTweet.getCreationDate());
-//        assertEquals(tweetToBeSaved.getUserId(), foundTweet.getUserId());
+//        assertEquals(tweetToBeSaved.getUser(), foundTweet.getUser());
     }
 
 }

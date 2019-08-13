@@ -1,5 +1,9 @@
 package com.homework.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,20 +19,23 @@ import java.util.Date;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Setter
 public class Tweet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
     @NotBlank
     private String content;
-    private Date creationDate;
-    @ManyToOne
-    @NotNull
-    private User userId;
 
-    public boolean isLastMonth() {
+    private Date creationDate = new Date();
+
+    @ManyToOne
+    @JsonBackReference
+    private User user;
+
+    public boolean checkIsLastMonth() {
         Date now = new Date();
         LocalDate localDateNow = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate localDateCreation = creationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();

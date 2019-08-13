@@ -1,5 +1,6 @@
 package com.homework.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -31,20 +32,15 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Tweet> tweets;
 
-    public User(String email, String username, String password) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-    }
-
-    public List<Tweet> getLastMonthsTweets() {
+    public List<Tweet> lastMonthsTweets() {
         List<Tweet> lastMonthTweets = new ArrayList<>();
 
         for (Tweet tweet : tweets) {
-            if (tweet.isLastMonth()) {
+            if (tweet.checkIsLastMonth()) {
                 lastMonthTweets.add(tweet);
             }
         }
@@ -61,4 +57,5 @@ public class User {
                 ", email='" + email + '\'' +
                 '}';
     }
+
 }

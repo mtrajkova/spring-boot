@@ -4,6 +4,7 @@ import com.homework.springboot.exceptions.TweetDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.service.TweetService;
+import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,12 @@ import org.springframework.stereotype.Service;
 public class TweetServiceImpl implements TweetService {
 
     private final TweetRepository tweetRepository;
+    private final UserService userService;
 
     @Autowired
-    public TweetServiceImpl(TweetRepository tweetRepository) {
+    public TweetServiceImpl(TweetRepository tweetRepository, UserService userService) {
         this.tweetRepository = tweetRepository;
+        this.userService = userService;
     }
 
     @Override

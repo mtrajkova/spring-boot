@@ -11,9 +11,13 @@ import java.util.List;
 public interface UserService {
     User save(User user) throws UserAlreadyExists;
 
+    User getById(Long id);
+
+    List<User> getAll();
+
     void updatePassword(User user) throws UserDoesNotExist;
 
-    void delete(User user) throws UserDoesNotExist;
+    void delete(Long id) throws UserDoesNotExist;
 
     void deleteTweets(User user) throws UserDoesNotExist;
 
@@ -22,4 +26,7 @@ public interface UserService {
     List<Tweet> getTweetsForUser(Long userId) throws UserDoesNotExist;
 
     List<Tweet> getTweetsOnAParticularDate(Long id, Date date) throws UserDoesNotExist;
+
+    void addTweet(Tweet tweet, Long id);
 }
+

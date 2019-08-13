@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         List<User> usersThatTweetedLastMonth;
 
         usersThatTweetedLastMonth = userRepository.findAll().stream()
-                .filter(user -> user.getLastMonthsTweets().size() > 0)
+                .filter(user -> user.lastMonthsTweets().size() > 0)
                 .collect(Collectors.toList());
 
         return usersThatTweetedLastMonth;
@@ -50,6 +50,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getById(Long id) {
+        return userRepository.findById(id).get();
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public void updatePassword(User user) throws UserDoesNotExist {
         if (!userAlreadyExists(user)) {
             throw new UserDoesNotExist();
@@ -61,12 +71,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(User user) throws UserDoesNotExist {
-        if (!userAlreadyExists(user)) {
+    public void delete(Long id) throws UserDoesNotExist {
+        Optional<User> userToDelete = userRepository.findById(id);
+
+        if (!userToDelete.isPresent()) {
             throw new UserDoesNotExist();
         }
 
-        userRepository.delete(user);
+        userRepository.delete(userToDelete.get());
     }
 
     @Override
@@ -99,6 +111,14 @@ public class UserServiceImpl implements UserService {
         }
 
         return tweetRepository.findByCreationDate(date);
+    }
+
+    @Override
+    public void addTweet(Tweet tweet, Long id) {
+        User user = userRepository.findById(id).get();
+
+        user.getTweets().add(tweet);
+        userRepository.save(user);
     }
 
     private boolean userAlreadyExists(User user) {

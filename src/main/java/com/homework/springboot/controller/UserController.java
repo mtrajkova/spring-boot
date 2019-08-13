@@ -4,11 +4,13 @@ import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.service.TweetService;
 import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,10 +22,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final TweetService tweetService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, TweetService tweetService) {
         this.userService = userService;
+        this.tweetService = tweetService;
     }
 
     @PostMapping
@@ -35,6 +39,21 @@ public class UserController {
             System.out.println(userAlreadyExists.getMessage());
             return new ResponseEntity(HttpStatus.CONFLICT);
         }
+    }
+
+    @PostMapping("{id}/tweets")
+    public ResponseEntity addTweet(@RequestBody @Valid Tweet tweet, @PathVariable Long id) {
+        tweet.setUser(userService.getById(id));
+        tweetService.save(tweet);
+
+        userService.addTweet(tweet, id);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAll();
     }
 
     @GetMapping(value = "/tweeted-last-month")
@@ -75,10 +94,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping
-    public ResponseEntity deleteUser(@RequestBody User user) {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity deleteUser(@PathVariable Long id) {
         try {
-            userService.delete(user);
+            userService.delete(id);
             return new ResponseEntity(HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
             System.out.println(userDoesNotExist.getMessage());
