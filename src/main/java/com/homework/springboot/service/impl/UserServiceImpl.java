@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         List<User> usersThatTweetedLastMonth;
 
         usersThatTweetedLastMonth = userRepository.findAll().stream()
-                .filter(user -> user.lastMonthsTweets().size() > 0)
+                .filter(user -> !user.lastMonthsTweets().isEmpty())
                 .collect(Collectors.toList());
 
         return usersThatTweetedLastMonth;
@@ -50,8 +50,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(Long id) {
-        return userRepository.findById(id).get();
+    public User getById(Long id) throws UserDoesNotExist {
+        Optional<User> user = userRepository.findById(id);
+
+        if (!user.isPresent()) {
+            throw new UserDoesNotExist();
+        }
+
+        return user.get();
     }
 
     @Override
@@ -82,24 +88,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteTweetsForUser(Long id) throws UserDoesNotExist {
+        Optional<User> user = userRepository.findById(id);
+
+        if (!user.isPresent()) {
+            throw new UserDoesNotExist();
+        }
+
+        for (Tweet tweet : tweetRepository.findByUserId(id)) {
+            tweetRepository.delete(tweet);
+        }
+    }
+
+    @Override
     public List<Tweet> getTweetsForUser(Long id) throws UserDoesNotExist {
         Optional<User> user = userRepository.findById(id);
+
         if (!user.isPresent()) {
             throw new UserDoesNotExist();
         }
 
         return user.get().getTweets();
-    }
-
-    @Override
-    public void deleteTweets(User user) throws UserDoesNotExist {
-        if (!userAlreadyExists(user)) {
-            throw new UserDoesNotExist();
-        }
-
-        User userToBeUpdated = userRepository.findById(user.getId()).get();
-        userToBeUpdated.setTweets(new ArrayList<>());
-        userRepository.save(userToBeUpdated);
     }
 
     @Override
@@ -124,4 +133,5 @@ public class UserServiceImpl implements UserService {
     private boolean userAlreadyExists(User user) {
         return userRepository.findByUsername(user.getUsername()).isPresent() || userRepository.findByEmail(user.getEmail()).isPresent();
     }
+
 }

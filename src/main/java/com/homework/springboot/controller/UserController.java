@@ -41,12 +41,9 @@ public class UserController {
         }
     }
 
-    @PostMapping("{id}/tweets")
-    public ResponseEntity addTweet(@RequestBody @Valid Tweet tweet, @PathVariable Long id) {
-        tweet.setUser(userService.getById(id));
+    @PostMapping("/tweets")
+    public ResponseEntity addTweet(@RequestBody @Valid Tweet tweet) {
         tweetService.save(tweet);
-
-        userService.addTweet(tweet, id);
 
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -54,6 +51,18 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAll();
+    }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        try {
+            User user = userService.getById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (UserDoesNotExist userDoesNotExist) {
+            userDoesNotExist.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @GetMapping(value = "/tweeted-last-month")
@@ -105,10 +114,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping(value = "/tweets")
-    public ResponseEntity deleteTweetsForUser(@RequestBody User user) {
+    @DeleteMapping(value = "/{id}/tweets")
+    public ResponseEntity deleteTweetsForUser(@PathVariable Long id) {
         try {
-            userService.deleteTweets(user);
+            userService.deleteTweetsForUser(id);
             return new ResponseEntity(HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
             System.out.println(userDoesNotExist.getMessage());

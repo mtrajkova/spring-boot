@@ -11,7 +11,7 @@ import java.util.List;
 public interface UserService {
     User save(User user) throws UserAlreadyExists;
 
-    User getById(Long id);
+    User getById(Long id) throws UserDoesNotExist;
 
     List<User> getAll();
 
@@ -19,7 +19,7 @@ public interface UserService {
 
     void delete(Long id) throws UserDoesNotExist;
 
-    void deleteTweets(User user) throws UserDoesNotExist;
+    void deleteTweetsForUser(Long id) throws UserDoesNotExist;
 
     List<User> getAllUsersThatHaveTweetedLastMonth();
 

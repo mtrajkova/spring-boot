@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface TweetRepository extends JpaRepository<Tweet, Long> {
     List<Tweet> findByCreationDate(Date date);
+
+    List<Tweet> findByUserId(Long id);
 }
