@@ -19,7 +19,7 @@ public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
 
     @Autowired
-    public TweetServiceImpl(TweetRepository tweetRepository, UserService userService) {
+    public TweetServiceImpl(TweetRepository tweetRepository) {
         this.tweetRepository = tweetRepository;
     }
 

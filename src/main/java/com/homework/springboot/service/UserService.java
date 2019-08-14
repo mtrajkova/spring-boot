@@ -4,6 +4,7 @@ import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.model.dto.PasswordsDto;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface UserService {
 
     List<User> getAll();
 
-    void updatePassword(User user) throws UserDoesNotExist;
+    void updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist;
 
     void delete(Long id) throws UserDoesNotExist;
 

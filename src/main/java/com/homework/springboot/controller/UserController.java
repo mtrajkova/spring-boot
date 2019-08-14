@@ -4,6 +4,7 @@ import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.model.dto.PasswordsDto;
 import com.homework.springboot.service.TweetService;
 import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,10 +93,10 @@ public class UserController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity updateUserPassword(@Valid @RequestBody User user) {
+    @PutMapping(value = "/{id}")
+    public ResponseEntity updateUserPassword(@PathVariable Long id, @RequestBody PasswordsDto passwordsDto) {
         try {
-            userService.updatePassword(user);
+            userService.updatePassword(id, passwordsDto);
             return new ResponseEntity(HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
             System.out.println(userDoesNotExist.getMessage());

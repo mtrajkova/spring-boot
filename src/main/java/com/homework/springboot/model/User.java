@@ -1,10 +1,12 @@
 package com.homework.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -26,6 +28,7 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    @Value("${user.password}")
     private String password;
 
     @Email

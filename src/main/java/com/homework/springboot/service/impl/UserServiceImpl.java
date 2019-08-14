@@ -4,6 +4,7 @@ import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.model.dto.PasswordsDto;
 import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.UserService;
@@ -66,14 +67,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(User user) throws UserDoesNotExist {
-        if (!userAlreadyExists(user)) {
+    public void updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist {
+        Optional<User> userToUpdate = userRepository.findById(userId);
+
+        if (!userToUpdate.isPresent()) {
             throw new UserDoesNotExist();
         }
 
-        User userToUpdate = userRepository.findById(user.getId()).get();
-        userToUpdate.setPassword(user.getPassword());
-        userRepository.save(userToUpdate);
+        if (userToUpdate.get().getPassword().equals(passwords.getOldPassword())) {
+            userToUpdate.get().setPassword(passwords.getNewPassword());
+            userRepository.save(userToUpdate.get());
+        }
     }
 
     @Override
