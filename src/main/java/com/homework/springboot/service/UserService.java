@@ -6,6 +6,7 @@ import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
 import com.homework.springboot.model.dto.PasswordsDto;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface UserService {
 
     List<Tweet> getTweetsForUser(Long userId) throws UserDoesNotExist;
 
-    List<Tweet> getTweetsOnAParticularDate(Long id, Date date) throws UserDoesNotExist;
+    List<Tweet> getTweetsOnAParticularDate(Long id, LocalDate date) throws UserDoesNotExist;
 
     void addTweet(Tweet tweet, Long id);
 }

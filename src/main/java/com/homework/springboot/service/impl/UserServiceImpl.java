@@ -11,6 +11,7 @@ import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -116,14 +117,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Tweet> getTweetsOnAParticularDate(Long id, Date date) throws UserDoesNotExist {
+    public List<Tweet> getTweetsOnAParticularDate(Long id, LocalDate date) throws UserDoesNotExist {
         Optional<User> user = userRepository.findById(id);
 
         if (!user.isPresent()) {
             throw new UserDoesNotExist();
         }
 
-        return tweetRepository.findByCreationDate(date);
+        return tweetRepository.findByCreationDateAndUserId(date, id);
     }
 
     @Override

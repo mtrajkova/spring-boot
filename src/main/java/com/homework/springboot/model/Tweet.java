@@ -29,18 +29,22 @@ public class Tweet {
     @NotBlank
     private String content;
 
-    private Date creationDate = new Date();
+    private LocalDate creationDate;
 
     @ManyToOne
     @JsonBackReference
     private User user;
 
-    public boolean checkIsLastMonth() {
-        Date now = new Date();
-        LocalDate localDateNow = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate localDateCreation = creationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    public Tweet(@NotBlank String content, LocalDate creationDate, User user) {
+        this.content = content;
+        this.creationDate = creationDate;
+        this.user = user;
+    }
 
-        return localDateNow.minusMonths(1).getMonth().equals(localDateCreation.getMonth());
+    public boolean checkIsLastMonth() {
+        LocalDate now = LocalDate.now();
+
+        return now.minusMonths(1).getMonth().equals(creationDate.getMonth());
     }
 
 }

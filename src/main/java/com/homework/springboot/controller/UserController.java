@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -83,7 +85,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/tweetsOnDate")
-    public ResponseEntity<List<Tweet>> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "dd.MM.yyyy") Date date) {
+    public ResponseEntity<List<Tweet>> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
             List<Tweet> tweets = userService.getTweetsOnAParticularDate(id, date);
             return new ResponseEntity<>(tweets, HttpStatus.OK);
