@@ -5,6 +5,7 @@ import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
 import com.homework.springboot.model.dto.PasswordsDto;
+import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.impl.UserServiceImpl;
 import org.junit.Before;
@@ -37,7 +38,9 @@ public class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
-    @InjectMocks
+    @Mock
+    TweetRepository tweetRepository;
+
     private UserServiceImpl userService;
 
     @Rule
@@ -46,6 +49,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        userService = new UserServiceImpl(userRepository, tweetRepository);
     }
 
     @Test
@@ -85,9 +89,9 @@ public class UserServiceTest {
 
     @Test
     public void testUpdatePassword() throws UserDoesNotExist {
-        Optional<User> user = Optional.of(new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>()));
-        doReturn(user).when(userRepository).findById(anyLong());
-        //when(userRepository.findById(anyLong())).thenReturn(user);
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         User actualUpdatedUser = userService.updatePassword(1L, new PasswordsDto("mare", "novomare"));
         User expectedUser = new User("mare", "novomare", "mare@mare.com");
@@ -97,19 +101,18 @@ public class UserServiceTest {
 
     @Test
     public void testDeleteUser() throws UserDoesNotExist {
-        User user = new User("mare", "mare", "mare@mare.com");
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         userService.delete(user.getId());
 
         verify(userRepository, times(1)).delete(user);
-
     }
 
     @Test
     public void testGetTweetsForUser() throws UserDoesNotExist {
-        User user = new User("mare", "mare", "mare@mare.com");
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
         Tweet tweet = new Tweet();
 
         user.setTweets(Stream.of(tweet).collect(Collectors.toList()));
