@@ -7,7 +7,6 @@ import com.homework.springboot.model.User;
 import com.homework.springboot.model.dto.PasswordsDto;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public interface UserService {

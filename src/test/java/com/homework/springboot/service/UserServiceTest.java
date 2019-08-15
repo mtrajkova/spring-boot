@@ -16,11 +16,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +32,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class UserServiceTest {
 
     @Mock
@@ -61,21 +65,23 @@ public class UserServiceTest {
 
     @Test
     public void testGetAllUsersThatHaveTweetedLastMonth() {
-        List<User> users = new ArrayList<>();
-        List<Tweet> lastMonthTweets = new ArrayList<>();
+        List<User> expectedUsers = new ArrayList<>();
 
         User user1 = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+        User user2 = new User(2L, "eci", "peci", "pec@a.com", new ArrayList<>());
 
-        lastMonthTweets.add(new Tweet(1L, "asdf", LocalDate.now(), user1));
-        lastMonthTweets.add(new Tweet(2L, "dfghdfhg", LocalDate.now().minusMonths(1), user1));
+        Tweet tweet1 = new Tweet(1L, "asdf", LocalDate.now(), user1);
+        Tweet tweet2 = new Tweet(2L, "dfghdfhg", LocalDate.now().minusMonths(1), user1);
 
-        user1.setTweets(lastMonthTweets);
-        users.add(user1);
+        user1.setTweets(Stream.of(tweet1, tweet2).collect(Collectors.toList()));
+        user2.setTweets(Stream.of(tweet1).collect(Collectors.toList()));
 
-        when(userService.getAllUsersThatHaveTweetedLastMonth()).thenReturn(users);
+        expectedUsers.add(user1);
+
+        when(userRepository.findAll()).thenReturn(Stream.of(user1, user2).collect(Collectors.toList()));
 
         List<User> actualUsers = userService.getAllUsersThatHaveTweetedLastMonth();
-        assertThat(users).isEqualTo(actualUsers);
+        assertThat(expectedUsers).isEqualTo(actualUsers);
     }
 
     @Test
@@ -91,9 +97,22 @@ public class UserServiceTest {
     }
 
     @Test
-    public void deleteUser() {
+    public void testDeleteUser() {
         User user = new User("mare", "mare", "mare@mare.com");
-        userRepository.save(user);
 
+        //TODO
+
+    }
+
+    @Test
+    public void testGetTweetsForUser() throws UserDoesNotExist {
+        User user = new User("mare", "mare", "mare@mare.com");
+        Tweet tweet = new Tweet();
+
+        user.setTweets(Stream.of(tweet).collect(Collectors.toList()));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        assertThat(Stream.of(tweet).collect(Collectors.toList())).isEqualTo(userService.getTweetsForUser(user.getId()));
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,6 +151,7 @@ public class UserControllerIT {
 
         List<Tweet> expectedTweets = Stream.of(tweet1, tweet2).collect(Collectors.toList());
 
+        System.out.println(gson.toJson(expectedTweets));
         mockMvc.perform(get(URL_TWEETS_FOR_USER, user1.getId()))
                 .andExpect(content().json(gson.toJson(expectedTweets)));
     }

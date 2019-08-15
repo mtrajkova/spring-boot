@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.homework.springboot.model.serialization.JsonDateDeserializer;
+import com.homework.springboot.model.serialization.JsonDateSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +35,8 @@ public class Tweet {
     @NotBlank
     private String content;
 
+//    @JsonDeserialize(using = JsonDateDeserializer.class)
+//    @JsonSerialize(using = JsonDateSerializer.class)
     private LocalDate creationDate;
 
     @ManyToOne

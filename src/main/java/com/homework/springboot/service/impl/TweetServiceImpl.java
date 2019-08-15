@@ -39,7 +39,7 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public void updateContent(Tweet tweet) throws TweetDoesNotExist {
+    public Tweet updateContent(Tweet tweet) throws TweetDoesNotExist {
         if (!tweetAlreadyExists(tweet)) {
             throw new TweetDoesNotExist();
         }
@@ -47,6 +47,8 @@ public class TweetServiceImpl implements TweetService {
         Tweet tweetToBeUpdated = tweetRepository.findById(tweet.getId()).get();
         tweetToBeUpdated.setContent(tweet.getContent());
         tweetRepository.save(tweetToBeUpdated);
+
+        return tweetToBeUpdated;
     }
 
     private boolean tweetAlreadyExists(Tweet tweet) {
