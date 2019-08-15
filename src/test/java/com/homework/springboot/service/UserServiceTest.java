@@ -28,8 +28,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @SpringBootTest
@@ -97,10 +96,14 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUser() {
+    public void testDeleteUser() throws UserDoesNotExist {
         User user = new User("mare", "mare", "mare@mare.com");
 
-        //TODO
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        userService.delete(user.getId());
+
+        verify(userRepository, times(1)).delete(user);
 
     }
 
