@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Wither;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -21,6 +22,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
+@Wither
 public class Tweet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

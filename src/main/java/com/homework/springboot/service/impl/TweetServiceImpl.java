@@ -33,8 +33,9 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public void save(Tweet tweet) {
+    public Tweet save(Tweet tweet) {
         tweetRepository.save(tweet);
+        return tweet;
     }
 
     @Override
