@@ -4,21 +4,20 @@ import com.homework.springboot.exceptions.TweetDoesNotExist;
 import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.repository.TweetRepository;
+import com.homework.springboot.service.impl.TweetServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,27 +25,22 @@ import static org.mockito.Mockito.when;
 public class TweetServiceTest {
 
     @Mock
-    private TweetService tweetService;
+    private TweetRepository tweetRepository;
 
-    @Mock
-    private UserService userService;
+    @InjectMocks
+    private TweetServiceImpl tweetService;
 
     @Test
     public void testSave() throws TweetDoesNotExist, UserAlreadyExists {
-//        User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
-//        userService.save(user);
-//
-//        Tweet tweetToBeSaved = new Tweet(1L, "Content1", new Date(), user);
-//        tweetService.save(tweetToBeSaved);
-//
-//        when(tweetService.save(any(Tweet.class))).thenReturn(new Tweet());
-//
-//        Tweet foundTweet = tweetService.getById(1L);
-//
-//        assertEquals(tweetToBeSaved.getId(), foundTweet.getId());
-//        assertEquals(tweetToBeSaved.getContent(), foundTweet.getContent());
-//        assertEquals(tweetToBeSaved.getCreationDate(), foundTweet.getCreationDate());
-//        assertEquals(tweetToBeSaved.getUser(), foundTweet.getUser());
+        User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
+
+        Tweet tweetToBeSaved = new Tweet(1L, "Content1", LocalDate.now(), user);
+
+        when(tweetRepository.save(any(Tweet.class))).thenReturn(tweetToBeSaved);
+
+        Tweet savedTweet = tweetService.save(tweetToBeSaved);
+
+        assertThat(savedTweet.getContent()).isSameAs(tweetToBeSaved.getContent());
     }
 
 }
