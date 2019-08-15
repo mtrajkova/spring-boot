@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist {
+    public User updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist {
         Optional<User> userToUpdate = userRepository.findById(userId);
 
         if (!userToUpdate.isPresent()) {
@@ -79,6 +79,8 @@ public class UserServiceImpl implements UserService {
             userToUpdate.get().setPassword(passwords.getNewPassword());
             userRepository.save(userToUpdate.get());
         }
+
+        return userToUpdate.get();
     }
 
     @Override

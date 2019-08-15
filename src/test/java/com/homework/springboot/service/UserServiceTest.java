@@ -1,8 +1,10 @@
 package com.homework.springboot.service;
 
 import com.homework.springboot.exceptions.UserAlreadyExists;
+import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.model.dto.PasswordsDto;
 import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.impl.UserServiceImpl;
 import org.junit.Before;
@@ -18,9 +20,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -73,7 +78,22 @@ public class UserServiceTest {
         assertThat(users).isEqualTo(actualUsers);
     }
 
-    public void testUpdatePassword() {
+    @Test
+    public void testUpdatePassword() throws UserDoesNotExist {
+        Optional<User> user = Optional.of(new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>()));
+        doReturn(user).when(userRepository).findById(anyLong());
+        //when(userRepository.findById(anyLong())).thenReturn(user);
+
+        User actualUpdatedUser = userService.updatePassword(1L, new PasswordsDto("mare", "novomare"));
+        User expectedUser = new User("mare", "novomare", "mare@mare.com");
+
+        assertThat(expectedUser.getPassword()).isSameAs(actualUpdatedUser.getPassword());
+    }
+
+    @Test
+    public void deleteUser() {
+        User user = new User("mare", "mare", "mare@mare.com");
+        userRepository.save(user);
 
     }
 }

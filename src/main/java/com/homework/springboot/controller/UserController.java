@@ -84,7 +84,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/{id}/tweetsOnDate")
+    @GetMapping(value = "/{id}/tweets-on-date")
     public ResponseEntity<List<Tweet>> getTweetsOnAParticularDate(@PathVariable Long id, @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
             List<Tweet> tweets = userService.getTweetsOnAParticularDate(id, date);
@@ -96,10 +96,10 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity updateUserPassword(@PathVariable Long id, @RequestBody PasswordsDto passwordsDto) {
+    public ResponseEntity<User> updateUserPassword(@PathVariable Long id, @RequestBody PasswordsDto passwordsDto) {
         try {
-            userService.updatePassword(id, passwordsDto);
-            return new ResponseEntity(HttpStatus.OK);
+            User updatedUser = userService.updatePassword(id, passwordsDto);
+            return new ResponseEntity(updatedUser, HttpStatus.OK);
         } catch (UserDoesNotExist userDoesNotExist) {
             System.out.println(userDoesNotExist.getMessage());
             return new ResponseEntity(HttpStatus.NOT_FOUND);

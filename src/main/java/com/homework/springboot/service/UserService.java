@@ -17,7 +17,7 @@ public interface UserService {
 
     List<User> getAll();
 
-    void updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist;
+    User updatePassword(Long userId, PasswordsDto passwords) throws UserDoesNotExist;
 
     void delete(Long id) throws UserDoesNotExist;
 

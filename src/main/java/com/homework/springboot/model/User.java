@@ -42,6 +42,13 @@ public class User {
     @JsonManagedReference
     private List<Tweet> tweets;
 
+
+    public User( String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
     public List<Tweet> lastMonthsTweets() {
         List<Tweet> lastMonthTweets = new ArrayList<>();
 
