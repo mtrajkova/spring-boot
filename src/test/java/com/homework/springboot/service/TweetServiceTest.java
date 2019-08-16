@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ public class TweetServiceTest {
     public void testSave() throws TweetDoesNotExist, UserAlreadyExists {
         User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
 
-        Tweet tweetToBeSaved = new Tweet(1L, "Content1", LocalDate.now(), user);
+        Tweet tweetToBeSaved = new Tweet(1L, "Content1", new Date(), user);
 
         when(tweetRepository.save(any(Tweet.class))).thenReturn(tweetToBeSaved);
 
@@ -54,7 +55,7 @@ public class TweetServiceTest {
     public void testGetById() throws TweetDoesNotExist {
         User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
 
-        Tweet tweetToBeSaved = new Tweet(1L, "Content1", LocalDate.now(), user);
+        Tweet tweetToBeSaved = new Tweet(1L, "Content1", new Date(), user);
 
         when(tweetRepository.findById(anyLong())).thenReturn(Optional.of(tweetToBeSaved));
 
@@ -65,11 +66,11 @@ public class TweetServiceTest {
     public void testUpdateContent() throws TweetDoesNotExist {
         User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
 
-        Tweet tweetToBeUpdated = new Tweet(1L, "Content1", LocalDate.now(), user);
+        Tweet tweetToBeUpdated = new Tweet(1L, "Content1", new Date(), user);
 
         when(tweetRepository.findById(anyLong())).thenReturn(Optional.of(tweetToBeUpdated));
 
-        Tweet updateTweet = new Tweet(1L, "Content2", LocalDate.now(), user);
+        Tweet updateTweet = new Tweet(1L, "Content2", new Date(), user);
 
         Tweet actualTweet = tweetService.updateContent(updateTweet);
 
@@ -78,12 +79,6 @@ public class TweetServiceTest {
 
     @Test
     public void testGetByIdShouldThrowTweetDoesNotExist() throws TweetDoesNotExist {
-        User user = new User(1L, "mare", "marePass", "mare@mare.com", new ArrayList<>());
-
-        Tweet tweet = new Tweet(1L, "Content1", LocalDate.now(), user);
-
-        when(tweetRepository.findById(2L)).thenReturn(Optional.of(new Tweet()));
-
         expectedException.expect(TweetDoesNotExist.class);
 
         tweetService.getById(1L);

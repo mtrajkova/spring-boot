@@ -20,8 +20,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.security.cert.CollectionCertStoreParameters;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
@@ -48,10 +51,13 @@ public class UserServiceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private SimpleDateFormat dateFormat;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         userService = new UserServiceImpl(userRepository, tweetRepository);
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     }
 
     @Test
@@ -69,14 +75,14 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetAllUsersThatHaveTweetedLastMonth() {
+    public void testGetAllUsersThatHaveTweetedLastMonth() throws ParseException {
         List<User> expectedUsers = new ArrayList<>();
 
         User user1 = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
         User user2 = new User(2L, "eci", "peci", "pec@a.com", new ArrayList<>());
 
-        Tweet tweet1 = new Tweet(1L, "asdf", LocalDate.now(), user1);
-        Tweet tweet2 = new Tweet(2L, "dfghdfhg", LocalDate.now().minusMonths(1), user1);
+        Tweet tweet1 = new Tweet(1L, "asdf", new Date(), user1);
+        Tweet tweet2 = new Tweet(2L, "dfghdfhg", dateFormat.parse("2019-07-02"), user1);
 
         user1.setTweets(Stream.of(tweet1, tweet2).collect(Collectors.toList()));
         user2.setTweets(Stream.of(tweet1).collect(Collectors.toList()));
@@ -126,8 +132,6 @@ public class UserServiceTest {
     @Test
     public void testDeleteUserShouldThrowUserDoesNotExist() throws UserDoesNotExist {
         User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
-
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
 
         expectedException.expect(UserDoesNotExist.class);
 

@@ -9,10 +9,7 @@ import com.homework.springboot.model.dto.PasswordsDto;
 import com.homework.springboot.model.serialization.JsonDateSerializer;
 import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +24,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -66,15 +65,18 @@ public class UserControllerIT {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    private SimpleDateFormat dateFormat;
+
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-
+        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'").create();
         user = new User()
                 .withEmail("mare@mare.com")
                 .withPassword("mare")
                 .withUsername("mare");
+
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     }
 
     @Test
@@ -129,7 +131,7 @@ public class UserControllerIT {
     @Test
     public void testGetAllUsersThatTweetedLastMonth() throws Exception {
         userRepository.delete(user);
-        
+
         User user1 = new User("x", "x", "x@m.com");
         User user2 = new User("y", "y", "y@a.com");
         User user3 = new User("b", "v", "b@a.com");
@@ -139,29 +141,31 @@ public class UserControllerIT {
             userRepository.save(user);
         }
 
-        tweetRepository.save(new Tweet("asdf", LocalDate.now().minusMonths(1), user1));
-        tweetRepository.save(new Tweet("hfhfhfhfhf", LocalDate.now().minusMonths(1), user2));
+        tweetRepository.save(new Tweet("asdf", dateFormat.parse("2019-07-04"), user1));
+        tweetRepository.save(new Tweet("hfhfhfhfhf", dateFormat.parse("2019-07-01"), user2));
+
+        List<User> expectedUsers = Stream.of(user1, user2).collect(Collectors.toList());
 
         mockMvc.perform(get(URL_GET_USERS_THAT_TWEETED_LAST_MONTH))
-                .andExpect(content().json(gson.toJson(users)));
+                .andExpect(content().json(gson.toJson(expectedUsers)));
     }
 
-    //DATE SERIALIZATION
     @Test
     public void testGetTweetsForUser() throws Exception {
         userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
+        Tweet tweet1 = new Tweet("asdf", new Date(), user);
+        Tweet tweet2 = new Tweet("hghghg", new Date(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
 
-        List<Tweet> expectedTweets = Stream.of(tweet1, tweet2).collect(Collectors.toList());
+        String output = mockMvc.perform(get(URL_TWEETS_FOR_USER, user.getId()))
+                .andReturn().getResponse().getContentAsString();
 
-        System.out.println(gson.toJson(expectedTweets));
-        mockMvc.perform(get(URL_TWEETS_FOR_USER, user.getId()))
-                .andExpect(content().json(gson.toJson(expectedTweets)));
+        Assert.assertTrue(output.contains("asdf"));
+        Assert.assertTrue(output.contains("hghghg"));
+
     }
 
     //DATE SERIALIZATION
@@ -169,15 +173,15 @@ public class UserControllerIT {
     public void testGetTweetsOnAParticularDate() throws Exception {
         userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
+        Tweet tweet1 = new Tweet("asdf", dateFormat.parse("2019-07-09"), user);
+        Tweet tweet2 = new Tweet("hghghg", new Date(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
 
         List<Tweet> expectedTweets = Stream.of(tweet2).collect(Collectors.toList());
 
-        mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user.getId()).param("date", "2019-08-15"))
+        mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user.getId()).requestAttr("date", "2019-08-09"))
                 .andExpect(content().json(gson.toJson(expectedTweets)));
     }
 
@@ -209,8 +213,8 @@ public class UserControllerIT {
     public void testDeleteTweetsForUser() throws Exception {
         userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
+        Tweet tweet1 = new Tweet("asdf", dateFormat.parse("2019-07-09"), user);
+        Tweet tweet2 = new Tweet("hghghg", new Date(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
