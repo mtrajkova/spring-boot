@@ -1,17 +1,17 @@
 package com.homework.springboot.controller;
 
 import com.google.gson.Gson;
-import com.homework.springboot.exceptions.UserAlreadyExists;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
+import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.impl.TweetServiceImpl;
 import com.homework.springboot.service.impl.UserServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,27 +42,28 @@ public class TweetControllerIT {
     private TweetServiceImpl tweetService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private UserServiceImpl userService;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @LocalServerPort
-    String localPort;
+    private User user;
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         gson = new Gson();
+        user = new User()
+                .withEmail("mare@mare.com")
+                .withPassword("mare")
+                .withUsername("mare");
     }
 
     @Test
     public void testSaveTweet() throws Exception {
-        User user = new User()
-                .withEmail("mare@mare.com")
-                .withPassword("mare")
-                .withUsername("mare");
-
         userService.save(user);
 
         //problem so LocalDate serijalizacija
@@ -81,11 +82,6 @@ public class TweetControllerIT {
 
     @Test
     public void testGetTweetById() throws Exception {
-        User user = new User()
-                .withEmail("mare@mare.com")
-                .withPassword("mare")
-                .withUsername("mare");
-
         userService.save(user);
 
         Tweet tweet = new Tweet()
@@ -101,11 +97,6 @@ public class TweetControllerIT {
 
     @Test
     public void testUpdateContentResponseStatus() throws Exception {
-        User user = new User()
-                .withEmail("mare@mare.com")
-                .withPassword("mare")
-                .withUsername("mare");
-
         userService.save(user);
 
         Tweet tweet = new Tweet()
@@ -120,5 +111,10 @@ public class TweetControllerIT {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(tweetToUpdate)))
                 .andExpect(status().isOk());
+    }
+
+    @After
+    public void cleanUp() {
+        userRepository.deleteAll();
     }
 }

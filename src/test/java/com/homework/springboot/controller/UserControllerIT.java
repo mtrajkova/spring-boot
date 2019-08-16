@@ -2,14 +2,18 @@ package com.homework.springboot.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.homework.springboot.exceptions.UserDoesNotExist;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
 import com.homework.springboot.model.dto.PasswordsDto;
 import com.homework.springboot.model.serialization.JsonDateSerializer;
 import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,6 +52,8 @@ public class UserControllerIT {
 
     private Gson gson;
 
+    private User user;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -57,20 +63,22 @@ public class UserControllerIT {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-//        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-        gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(LocalDate.class, new JsonDateSerializer()).create();
+        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+
+        user = new User()
+                .withEmail("mare@mare.com")
+                .withPassword("mare")
+                .withUsername("mare");
     }
 
     @Test
     public void testSaveUserResponseStatus() throws Exception {
-        User user = new User()
-                .withEmail("mare@mare.com")
-                .withPassword("mare")
-                .withUsername("mare");
-
         String userJsonString = gson.toJson(user);
 
         mockMvc.perform(post(BASE_URL)
@@ -83,11 +91,6 @@ public class UserControllerIT {
 
     @Test
     public void testSaveUserResponse() throws Exception {
-        User user = new User()
-                .withEmail("mare@mare.com")
-                .withPassword("mare")
-                .withUsername("mare");
-
         String userJsonString = gson.toJson(user);
 
         mockMvc.perform(post(BASE_URL)
@@ -117,7 +120,6 @@ public class UserControllerIT {
 
     @Test
     public void testGetUser() throws Exception {
-        User user = new User("a", "a", "a@a.com");
         userRepository.save(user);
 
         mockMvc.perform(get(URL_USER_BY_ID, user.getId()))
@@ -126,8 +128,10 @@ public class UserControllerIT {
 
     @Test
     public void testGetAllUsersThatTweetedLastMonth() throws Exception {
-        User user1 = new User("m", "m", "M@m.com");
-        User user2 = new User("a", "a", "a@a.com");
+        userRepository.delete(user);
+        
+        User user1 = new User("x", "x", "x@m.com");
+        User user2 = new User("y", "y", "y@a.com");
         User user3 = new User("b", "v", "b@a.com");
         List<User> users = Stream.of(user1, user2, user3).collect(Collectors.toList());
 
@@ -145,11 +149,10 @@ public class UserControllerIT {
     //DATE SERIALIZATION
     @Test
     public void testGetTweetsForUser() throws Exception {
-        User user1 = new User("m", "m", "M@m.com");
-        userRepository.save(user1);
+        userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user1);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user1);
+        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
+        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
@@ -157,38 +160,36 @@ public class UserControllerIT {
         List<Tweet> expectedTweets = Stream.of(tweet1, tweet2).collect(Collectors.toList());
 
         System.out.println(gson.toJson(expectedTweets));
-        mockMvc.perform(get(URL_TWEETS_FOR_USER, user1.getId()))
+        mockMvc.perform(get(URL_TWEETS_FOR_USER, user.getId()))
                 .andExpect(content().json(gson.toJson(expectedTweets)));
     }
 
     //DATE SERIALIZATION
     @Test
     public void testGetTweetsOnAParticularDate() throws Exception {
-        User user1 = new User("m", "m", "M@m.com");
-        userRepository.save(user1);
+        userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user1);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user1);
+        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
+        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
 
         List<Tweet> expectedTweets = Stream.of(tweet2).collect(Collectors.toList());
 
-        mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user1.getId()).param("date", "2019-08-15"))
+        mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user.getId()).param("date", "2019-08-15"))
                 .andExpect(content().json(gson.toJson(expectedTweets)));
     }
 
     @Test
     public void testUpdateUserPassword() throws Exception {
-        User user1 = new User("m", "m", "M@m.com");
-        userRepository.save(user1);
+        userRepository.save(user);
 
-        PasswordsDto passwordsDto = new PasswordsDto("m", "novom");
+        PasswordsDto passwordsDto = new PasswordsDto("mare", "novomare");
 
-        User expectedUser = new User(1L, "m", "novom", "M@m.com", new ArrayList<>());
+        User expectedUser = new User(user.getId(), "mare", "novomare", "mare@mare.com", new ArrayList<>());
 
-        mockMvc.perform(put(URL_USER_BY_ID, user1.getId())
+        mockMvc.perform(put(URL_USER_BY_ID, user.getId())
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(passwordsDto)))
                 .andExpect(content().json(gson.toJson(expectedUser)));
@@ -196,29 +197,32 @@ public class UserControllerIT {
 
     @Test
     public void testDeleteUser() throws Exception {
-        User userToBeDeleted = new User("m", "m", "m@m.com");
-        userRepository.save(userToBeDeleted);
+        userRepository.save(user);
 
-        mockMvc.perform(delete(URL_USER_BY_ID, userToBeDeleted.getId()));
+        mockMvc.perform(delete(URL_USER_BY_ID, user.getId()));
 
-        assertThat(userRepository.findById(userToBeDeleted.getId())).isNull();
+        assertThat(userRepository.findById(user.getId())).isEmpty();
     }
 
     @Test
     @Transactional
     public void testDeleteTweetsForUser() throws Exception {
-        User user1 = new User("m", "m", "M@m.com");
-        userRepository.save(user1);
+        userRepository.save(user);
 
-        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user1);
-        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user1);
+        Tweet tweet1 = new Tweet("asdf", LocalDate.now().minusMonths(1), user);
+        Tweet tweet2 = new Tweet("hghghg", LocalDate.now(), user);
 
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
 
-        mockMvc.perform(delete(URL_TWEETS_FOR_USER, user1.getId()));
+        mockMvc.perform(delete(URL_TWEETS_FOR_USER, user.getId()));
 
-        assertThat(userRepository.findById(user1.getId()).get().getTweets()).isNull();
+        assertThat(userRepository.findById(user.getId()).get().getTweets()).isNull();
+    }
+
+    @After
+    public void cleanUp() {
+        userRepository.deleteAll();
     }
 }
 

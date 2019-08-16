@@ -124,6 +124,18 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testDeleteUserShouldThrowUserDoesNotExist() throws UserDoesNotExist {
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+
+        expectedException.expect(UserDoesNotExist.class);
+
+        userService.delete(user.getId());
+
+    }
+
+    @Test
     public void testGetTweetsForUser() throws UserDoesNotExist {
         User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
         Tweet tweet = new Tweet();
