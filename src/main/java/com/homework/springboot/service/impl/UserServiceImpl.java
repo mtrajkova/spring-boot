@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -134,7 +135,11 @@ public class UserServiceImpl implements UserService {
             throw new UserDoesNotExist();
         }
 
-        return tweetRepository.findByCreationDateAndUserId(date, id);
+        Date date1 = java.util.Date.from(date.atStartOfDay()
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+
+        return tweetRepository.findByCreationDateAndUserId(date1, id);
     }
 
     @Override

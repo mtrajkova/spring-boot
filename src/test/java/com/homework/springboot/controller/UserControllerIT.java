@@ -179,10 +179,13 @@ public class UserControllerIT {
         tweetRepository.save(tweet1);
         tweetRepository.save(tweet2);
 
-        List<Tweet> expectedTweets = Stream.of(tweet2).collect(Collectors.toList());
+        String actualOutput = mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user.getId())
+                .param("date", "2019-07-09"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        mockMvc.perform(get(URL_GET_TWEETS_FOR_USER_ON_DATE, user.getId()).requestAttr("date", "2019-08-09"))
-                .andExpect(content().json(gson.toJson(expectedTweets)));
+        assertThat(actualOutput.contains("asdf")).isTrue();
     }
 
     @Test
