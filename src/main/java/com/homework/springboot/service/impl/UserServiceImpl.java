@@ -9,6 +9,7 @@ import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
 import com.homework.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,6 +24,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final TweetRepository tweetRepository;
+
+    @Value("${user.password}")
+    private String defaultPassword;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, TweetRepository tweetRepository) {
@@ -45,6 +49,10 @@ public class UserServiceImpl implements UserService {
     public User save(User user) throws UserAlreadyExists {
         if (userAlreadyExists(user)) {
             throw new UserAlreadyExists(user);
+        }
+
+        if (user.getPassword().isEmpty()) {
+            user.setPassword(defaultPassword);
         }
 
         userRepository.save(user);
