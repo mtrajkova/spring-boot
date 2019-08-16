@@ -11,7 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("it")
 public class TweetControllerIT {
 
     private static final String BASE_URL = "/tweets";
@@ -43,6 +46,9 @@ public class TweetControllerIT {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @LocalServerPort
+    String localPort;
 
     @Before
     public void setUp() {
@@ -83,15 +89,14 @@ public class TweetControllerIT {
         userService.save(user);
 
         Tweet tweet = new Tweet()
-                .withId(1L)
                 .withContent("mare is cool")
                 .withUser(user);
 
         tweetService.save(tweet);
 
-        mockMvc.perform(get(URL_GET_TWEET_BY_ID, 1))
+        mockMvc.perform(get(URL_GET_TWEET_BY_ID, tweet.getId()))
                 .andDo(print()).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test
@@ -104,7 +109,6 @@ public class TweetControllerIT {
         userService.save(user);
 
         Tweet tweet = new Tweet()
-                .withId(1L)
                 .withContent("mare is cool")
                 .withUser(user);
 

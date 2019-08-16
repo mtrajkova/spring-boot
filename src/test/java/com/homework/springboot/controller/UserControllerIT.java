@@ -1,9 +1,11 @@
 package com.homework.springboot.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.homework.springboot.model.Tweet;
 import com.homework.springboot.model.User;
 import com.homework.springboot.model.dto.PasswordsDto;
+import com.homework.springboot.model.serialization.JsonDateSerializer;
 import com.homework.springboot.repository.TweetRepository;
 import com.homework.springboot.repository.UserRepository;
 import org.junit.Before;
@@ -12,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("it")
 public class UserControllerIT {
 
     private static final String BASE_URL = "/users";
@@ -56,7 +60,8 @@ public class UserControllerIT {
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        gson = new Gson();
+//        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(LocalDate.class, new JsonDateSerializer()).create();
     }
 
     @Test

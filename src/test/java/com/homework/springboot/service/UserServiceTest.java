@@ -19,10 +19,12 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.security.cert.CollectionCertStoreParameters;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -100,6 +102,17 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testGetById() throws UserDoesNotExist {
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        User actualUser = userService.getById(user.getId());
+
+        assertThat(user.getUsername()).isSameAs(actualUser.getUsername());
+    }
+
+    @Test
     public void testDeleteUser() throws UserDoesNotExist {
         User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
 
@@ -120,5 +133,36 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         assertThat(Stream.of(tweet).collect(Collectors.toList())).isEqualTo(userService.getTweetsForUser(user.getId()));
+    }
+
+    @Test
+    public void testGetTweetsOnAParticularDate() throws UserDoesNotExist {
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        List<Tweet> tweets = Stream.of(new Tweet()).collect(Collectors.toList());
+
+        when(tweetRepository.findByCreationDateAndUserId(any(), anyLong())).thenReturn(tweets);
+
+        List<Tweet> actualResult = userService.getTweetsOnAParticularDate(user.getId(), LocalDate.now());
+
+        assertThat(tweets).isEqualTo(actualResult);
+    }
+
+    @Test
+    public void testDeleteTweetsForUser() throws UserDoesNotExist {
+        User user = new User(1L, "mare", "mare", "mare@mare.com", new ArrayList<>());
+        Tweet tweet = new Tweet();
+
+        user.setTweets(Stream.of(tweet).collect(Collectors.toList()));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        when(tweetRepository.findByUserId(any())).thenReturn(Stream.of(tweet).collect(Collectors.toList()));
+
+        userService.deleteTweetsForUser(user.getId());
+
+        verify(tweetRepository, times(1)).delete(tweet);
     }
 }
