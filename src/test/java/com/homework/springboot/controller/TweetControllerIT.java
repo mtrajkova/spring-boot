@@ -105,7 +105,7 @@ public class TweetControllerIT {
 
         tweetService.save(tweet);
 
-        Tweet tweetToUpdate = new Tweet(tweet.getId(), "newContent", LocalDate.now(), user);
+        Tweet tweetToUpdate = new Tweet(tweet.getId(), "newContent", tweet.getCreationDate(), user);
 
         mockMvc.perform(put(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
