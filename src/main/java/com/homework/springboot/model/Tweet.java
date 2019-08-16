@@ -1,13 +1,6 @@
 package com.homework.springboot.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.homework.springboot.model.serialization.JsonDateDeserializer;
-import com.homework.springboot.model.serialization.JsonDateSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,9 +9,9 @@ import lombok.experimental.Wither;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -27,7 +20,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Wither
-public class Tweet {
+public class Tweet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -35,15 +28,15 @@ public class Tweet {
     @NotBlank
     private String content;
 
-//    @JsonDeserialize(using = JsonDateDeserializer.class)
+    //    @JsonDeserialize(using = JsonDateDeserializer.class)
 //    @JsonSerialize(using = JsonDateSerializer.class)
-    private LocalDate creationDate;
+    private Date creationDate;
 
     @ManyToOne
     @JsonBackReference
     private User user;
 
-    public Tweet(@NotBlank String content, LocalDate creationDate, User user) {
+    public Tweet(@NotBlank String content, Date creationDate, User user) {
         this.content = content;
         this.creationDate = creationDate;
         this.user = user;
@@ -52,7 +45,13 @@ public class Tweet {
     public boolean checkIsLastMonth() {
         LocalDate now = LocalDate.now();
 
-        return now.minusMonths(1).getMonth().equals(creationDate.getMonth());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(creationDate);
+
+        System.out.println(calendar.getTime());
+        System.out.println(calendar.get(calendar.MONTH));
+
+        return now.minusMonths(1).getMonth().getValue() == calendar.get(calendar.MONTH)+1;
     }
 
 }

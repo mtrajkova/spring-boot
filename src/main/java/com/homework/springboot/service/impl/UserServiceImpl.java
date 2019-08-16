@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsersThatHaveTweetedLastMonth() {
-        List<User> usersThatTweetedLastMonth;
+        List<User> usersThatTweetedLastMonth =  new ArrayList<>();
 
         usersThatTweetedLastMonth = userRepository.findAll().stream()
                 .filter(user -> !user.lastMonthsTweets().isEmpty())
